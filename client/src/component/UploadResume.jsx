@@ -10,7 +10,7 @@ export default function UploadResume() {
 
     const handleUpload = async () => {
         if (!file) {
-            setUploadStatus("Choose the file to upload");
+            setUploadStatus("No file!");
             return;
         }
 
@@ -19,21 +19,25 @@ export default function UploadResume() {
 
         try {
             setUploadStatus("Uploading...");
-            const response = await fetch("http://localhost:5173/upload", {
+            const response = await fetch("http://localhost:5000/upload", {
                 method: "POST",
                 body: formData,
             });
 
-            const result = await response.json();
+
+            const text = await response.text();
+            const result = text ? JSON.parse(text) : {};
+
             if (response.ok) {
                 setUploadStatus(`Success: ${result.filename}`);
             } else {
-                setUploadStatus(`Upload error: ${result.error}`);
+                setUploadStatus(`Error: ${result.error || "Unknown error"}`);
             }
         } catch (error) {
-            setUploadStatus("Error: " + error.message);
+            setUploadStatus("Error uploading file");
         }
     };
+
 
     return (
         <div className="p-6 bg-white shadow-md rounded-lg">
