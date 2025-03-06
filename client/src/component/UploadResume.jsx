@@ -3,6 +3,8 @@ import { useState } from "react";
 export default function UploadResume() {
     const [file, setFile] = useState(null);
     const [uploadStatus, setUploadStatus] = useState("");
+    const [resumeAnalysis, setResumeAnalysis] = useState("");
+
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -25,11 +27,14 @@ export default function UploadResume() {
             });
 
 
+
+
             const text = await response.text();
             const result = text ? JSON.parse(text) : {};
 
             if (response.ok) {
                 setUploadStatus(`Success: ${result.filename}`);
+                uploadtoOpenAI(result.filename);
             } else {
                 setUploadStatus(`Error: ${result.error || "Unknown error"}`);
             }
@@ -38,6 +43,21 @@ export default function UploadResume() {
         }
     };
 
+    const uploadtoOpenAI = async (filename) => {
+        try {
+            const response = await fetch("http://localhost:5000/analyze", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: filename }),
+            });
+
+            const result = await response.json();
+            setResumeAnalysis(result.result);
+        } catch {
+            setUploadStatus("Error uploading file to OpenAI");
+        }
+
+    }
 
     return (
         <div className="p-6 bg-white shadow-md rounded-lg">
@@ -57,6 +77,14 @@ export default function UploadResume() {
                 Upload
             </button>
             {uploadStatus && <p className="mt-4 text-sm text-gray-600">{uploadStatus}</p>}
+
+            {resumeAnalysis && (
+                <div className="p-6 bg-white shadow-md rounded-lg mt-4">
+                    <h2 className="text-xl font-bold mb-4">Analysis</h2>
+                    <p className="text-sm text-gray-600">{resumeAnalysis}</p>
+                </div>
+            )}
+
         </div>
     );
 }
