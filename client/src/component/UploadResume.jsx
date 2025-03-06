@@ -5,10 +5,11 @@ export default function UploadResume() {
     const [uploadStatus, setUploadStatus] = useState("");
     const [resumeAnalysis, setResumeAnalysis] = useState("");
 
+
     const formatAnalysisText = (text) => {
         return text
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // **bold** → <strong>bold</strong>
-            .replace(/\n/g, "<br />"); // Переносы строк
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\n/g, "<br />");
     };
 
 
@@ -39,8 +40,10 @@ export default function UploadResume() {
             const result = text ? JSON.parse(text) : {};
 
             if (response.ok) {
-                setUploadStatus(`Success: ${result.filename}`);
+                setUploadStatus(`Success: ${result.filename}. Please wait for response...`);
+
                 uploadtoOpenAI(result.filename);
+
             } else {
                 setUploadStatus(`Error: ${result.error || "Unknown error"}`);
             }
