@@ -5,6 +5,12 @@ export default function UploadResume() {
     const [uploadStatus, setUploadStatus] = useState("");
     const [resumeAnalysis, setResumeAnalysis] = useState("");
 
+    const formatAnalysisText = (text) => {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // **bold** → <strong>bold</strong>
+            .replace(/\n/g, "<br />"); // Переносы строк
+    };
+
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -78,10 +84,15 @@ export default function UploadResume() {
             </button>
             {uploadStatus && <p className="mt-4 text-sm text-gray-600">{uploadStatus}</p>}
 
+
+
             {resumeAnalysis && (
                 <div className="p-6 bg-white shadow-md rounded-lg mt-4">
                     <h2 className="text-xl font-bold mb-4">Analysis</h2>
-                    <p className="text-sm text-gray-600">{resumeAnalysis}</p>
+                    <div
+                        className="text-sm text-gray-800 leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: formatAnalysisText(resumeAnalysis) }}
+                    />
                 </div>
             )}
 

@@ -3,6 +3,7 @@ const cors = require("cors");
 const multer = require("multer");
 const dotenv = require("dotenv");
 const { GoogleGenerativeAI } = require("@google/generative-ai")
+const pdfParse = require("pdf-parse");
 
 const app = express();
 app.use(cors());
@@ -30,19 +31,30 @@ if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }
 
+const analyzePDF = async (file) => {
+    try {
+        const dataBuffer = fs.readFileSync(`uploads/${file}`);
+        const data = await pdfParse(dataBuffer);
+        const text = data.text;
+        return text;
+    } catch (error) {
+        console.error("PDF Error:", error.message);
+        return "Error parsing PDF";
+    }
+}
+
 
 
 const analyzeResume = async (text) => {
     try {
-        console.log("Analyzing resume:", text);
-
+        const transferText = await analyzePDF(text);
         const response = await model.generateContent({
             contents: [
-                { parts: [{ text: `Analyze and give recommendations:\n\n${text}` }] }
+                { parts: [{ text: `Analyze and give recommendations:\n\n${transferText}` }] }
             ]
         });
 
-        const result = response.response.text(); // ✅ Получаем текст ответа
+        const result = response.response.text();
         console.log("Gemini Response:", result);
 
         return result;
